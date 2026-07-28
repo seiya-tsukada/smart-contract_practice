@@ -28,6 +28,6 @@ services:
  
         WORKDIR /app/contracts
     command: ["sleep", "infinity"]
-    working_dir: /app
+    working_dir: /app/contracts
     volumes:
       - .:/app
