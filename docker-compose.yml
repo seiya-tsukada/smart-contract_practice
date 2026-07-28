@@ -26,7 +26,7 @@ services:
             rm /tmp/foundry.tar.gz; \
             forge --version
  
-        WORKDIR /app
+        WORKDIR /app/contracts
     command: ["sleep", "infinity"]
     working_dir: /app
     volumes:
