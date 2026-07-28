@@ -1,0 +1,33 @@
+
+services:
+  foundry:
+    build:
+      context: .
+      args:
+        # 固定しておくと再現性が保てる。最新の安定版タグに合わせて更新する
+        FOUNDRY_VERSION: v1.7.1
+      dockerfile_inline: |
+        FROM alpine:3.22
+ 
+        ARG FOUNDRY_VERSION
+        ARG TARGETARCH
+ 
+        # git は forge install / forge init が内部で使う
+        RUN apk add --no-cache bash ca-certificates curl git
+ 
+        # 公式リリースの tarball を展開するだけ。
+        # インストーラ（foundry.paradigm.xyz）はシェル検出に失敗して
+        # exit 1 を返すため経由しない。
+        RUN set -eux; \
+            ARCH="$${TARGETARCH:-$$(uname -m | sed 's/x86_64/amd64/; s/aarch64/arm64/')}"; \
+            curl -fsSL -o /tmp/foundry.tar.gz \
+              "https://github.com/foundry-rs/foundry/releases/download/$${FOUNDRY_VERSION}/foundry_$${FOUNDRY_VERSION}_alpine_$${ARCH}.tar.gz"; \
+            tar -xzf /tmp/foundry.tar.gz -C /usr/local/bin forge cast anvil chisel; \
+            rm /tmp/foundry.tar.gz; \
+            forge --version
+ 
+        WORKDIR /app
+    command: ["sleep", "infinity"]
+    working_dir: /app
+    volumes:
+      - .:/app
